@@ -1,4 +1,36 @@
-# Bags Be Truckin'
+# PSI Watch
+
+## Pins
+| Pn  | use      |
+| --- | -------- |
+| 25  | SCL      |
+| 26  | SDA      |
+| 32  | Sensor 1 |
+| 33  | Sensor 2 |
+
+
+## Sensor
+
+gs01525-02 - 100 SPI pressure
+
+### Voltage
+| V    | PSI     |
+| ---- | ------- |
+| 0.5v | 0 psi   |
+| 2.5v | 50 psi  |
+| 4.5v | 100 psi |
+
+
+
+### Wires
+| Color | Use    |
+| ----- | ------ |
+| RED   | +5v    |
+| BLK   | Ground |
+| GRN   | Signal |
+
+
+## Flashing
 
 https://esphome.github.io/esp-web-tools/
 

@@ -18,4 +18,4 @@ case "$1" in
     ;;
 esac
 
-web-flash --chip esp32 ./target/xtensa-esp32-none-elf/${BUILD_MODE}/bags-be-truckin
+web-flash --chip esp32 ./target/xtensa-esp32-none-elf/${BUILD_MODE}/psi-watch

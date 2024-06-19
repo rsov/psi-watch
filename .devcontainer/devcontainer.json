@@ -1,5 +1,5 @@
 {
-  "name": "bags_be_truckin",
+  "name": "psi_watch",
   // Select between image and build properties to pull or build the image.
   // "image": "docker.io/espressif/idf-rust:esp32_latest",
   "build": {
@@ -43,6 +43,6 @@
     8000,
     3333
   ],
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/bags_be_truckin,type=bind,consistency=cached",
-  "workspaceFolder": "/home/esp/bags_be_truckin"
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/psi_watch,type=bind,consistency=cached",
+  "workspaceFolder": "/home/esp/psi_watch"
 }
