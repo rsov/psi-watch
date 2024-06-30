@@ -46,8 +46,7 @@ jobs:
       - name: Run command
         run: cargo ${{ matrix.action.command }} ${{ matrix.action.args }}
 
-      - name: Build firmware
-        uses: actions/checkout@master
+      - name: Copy firmware
         if: ${{ github.ref == 'refs/heads/production' }}
         run: |
           cp "${GITHUB_WORKSPACE}/target/xtensa-esp32-none-elf/release/psi-watch" "${GITHUB_WORKSPACE}/dist/merged-firmware.bin"
