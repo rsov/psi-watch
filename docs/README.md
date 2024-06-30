@@ -32,7 +32,7 @@ gs01525-02 - 100 SPI pressure
 
 ## Flashing
 
-https://esphome.github.io/esp-web-tools/
+https://rsov.github.io/psi-watch/
 
 ## Dev Containers
 This repository offers Dev Containers supports for:
