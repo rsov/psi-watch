@@ -12,12 +12,6 @@ env:
   CARGO_TERM_COLOR: always
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   rust-checks:
     name: Rust Checks
@@ -45,23 +39,3 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Run command
         run: cargo ${{ matrix.action.command }} ${{ matrix.action.args }}
-
-      - name: Copy firmware
-        if: ${{ github.ref == 'refs/heads/production' }}
-        run: |
-          cp "${GITHUB_WORKSPACE}/target/xtensa-esp32-none-elf/release/psi-watch" "${GITHUB_WORKSPACE}/dist/merged-firmware.bin"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        if: ${{ github.ref == 'refs/heads/production' }}
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        if: ${{ github.ref == 'refs/heads/production' }}
-        with:
-          path: './dist/'
-
-      - name: Deploy to GitHub Pages
-        if: ${{ github.ref == 'refs/heads/production' }}
-        id: deployment
-        uses: actions/deploy-pages@v4
