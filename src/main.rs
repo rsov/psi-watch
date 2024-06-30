@@ -88,31 +88,15 @@ fn main() -> ! {
     // let mut display = driver.into_terminal_mode();
     let mut display = driver.into_buffered_graphics_mode();
 
-    log::info!("config");
+    log::debug!("config");
     display.set_display_on(true).unwrap();
     display.set_brightness(Brightness::BRIGHTEST).unwrap();
-
-    log::info!("flush");
     display.flush().unwrap();
 
     let text_style = MonoTextStyleBuilder::new()
         .font(&FONT_6X10)
         .text_color(BinaryColor::On)
         .build();
-
-    Text::with_baseline(
-        "Hello Rust World!....",
-        Point::zero(),
-        text_style,
-        Baseline::Top,
-    )
-    .draw(&mut display)
-    .unwrap();
-
-    log::info!("dtext");
-
-    display.flush().unwrap();
-    log::info!("flush");
 
     let sensor_1_pin = io.pins.gpio32;
     let sensor_2_pin = io.pins.gpio33;
@@ -124,31 +108,31 @@ fn main() -> ! {
 
     let mut adc1 = Adc::new(peripherals.ADC1, adc1_config);
 
-    let x1 = 0.5;
-    let y1 = 0.0;
-    let x2 = 4.5;
-    let y2 = 100.0;
-    let x = 2.5;
+    fn linear_interpolation(adc: f64) -> f64 {
+        let psi_at_min = 0.0;
+        let adc_at_min = 310.0; // 0.5 v / 2
 
-    fn linear_interpolation(x: f64, x1: f64, y1: f64, x2: f64, y2: f64) -> f64 {
-        y1 + ((x - x1) * (y2 - y1)) / (x2 - x1)
+        let adc_at_max = 2792.0; // 4.5 v / 2
+        let psi_at_max = 100.0;
+
+        psi_at_min + ((adc - adc_at_min) * (psi_at_max - psi_at_min)) / (adc_at_max - adc_at_min)
     }
 
     loop {
         let pin1_value: u16 = nb::block!(adc1.read_oneshot(&mut pin1_adc1_pin)).unwrap();
         let pin2_value: u16 = nb::block!(adc1.read_oneshot(&mut pin2_adc1_pin)).unwrap();
 
-        let volt1 = adc_to_voltage(pin1_value);
-        let volt2 = adc_to_voltage(pin2_value);
+        let psi1 = linear_interpolation(pin1_value as f64);
+        let psi2 = linear_interpolation(pin2_value as f64);
 
         log::info!(
-            "PIN32 {:.2}v ({pin1_value}) | PIN33 {:.2}v ({pin2_value})",
-            volt1,
-            volt2,
+            "PIN32 {:.0} PSI ({pin1_value}) | PIN33 {:.0} PSI ({pin2_value})",
+            psi1,
+            psi2,
         );
 
         Text::with_baseline(
-            &format!("Pin 32 {:.2}v", volt1),
+            &format!("Pin 32 {:.0} PSI", psi1),
             Point::zero(),
             text_style,
             Baseline::Top,
@@ -157,10 +141,10 @@ fn main() -> ! {
         .unwrap();
 
         Text::with_baseline(
-            &format!("Pin 31 {:.2}v", volt2),
+            &format!("Pin 33 {:.0} PSI", psi2),
             Point::zero(),
             text_style,
-            Baseline::Top,
+            Baseline::Bottom,
         )
         .draw(&mut display)
         .unwrap();
@@ -169,16 +153,4 @@ fn main() -> ! {
 
         delay.delay(500.millis());
     }
-}
-
-fn adc_to_voltage(raw_adc: u16) -> f32 {
-    // ADC Output = ( Analog input voltage / VREF ) x (2n – 1)
-
-    // Reference voltage in volts
-    let reference_voltage: f32 = 3.3;
-
-    // let bits = 12; // Number of bits in the ADC
-    let millivolts = (4096_f32 - 1_f32) / ((raw_adc as f32) * reference_voltage);
-
-    millivolts * 10_f32
 }
