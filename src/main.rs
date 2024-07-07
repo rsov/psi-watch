@@ -1,7 +1,10 @@
 #![no_std]
 #![no_main]
 
-use alloc::format;
+use alloc::{
+    format,
+    string::{String, ToString},
+};
 use embedded_graphics::{
     mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
@@ -108,31 +111,20 @@ fn main() -> ! {
 
     let mut adc1 = Adc::new(peripherals.ADC1, adc1_config);
 
-    fn linear_interpolation(adc: f64) -> f64 {
-        let psi_at_min = 0.0;
-        let adc_at_min = 310.0; // 0.5 v / 2
-
-        let adc_at_max = 2792.0; // 4.5 v / 2
-        let psi_at_max = 100.0;
-
-        psi_at_min + ((adc - adc_at_min) * (psi_at_max - psi_at_min)) / (adc_at_max - adc_at_min)
-    }
-
     loop {
-        let pin1_value: u16 = nb::block!(adc1.read_oneshot(&mut pin1_adc1_pin)).unwrap();
-        let pin2_value: u16 = nb::block!(adc1.read_oneshot(&mut pin2_adc1_pin)).unwrap();
+        let pin1_value = nb::block!(adc1.read_oneshot(&mut pin1_adc1_pin)).unwrap();
+        let pin2_value = nb::block!(adc1.read_oneshot(&mut pin2_adc1_pin)).unwrap();
 
-        let psi1 = linear_interpolation(pin1_value as f64);
-        let psi2 = linear_interpolation(pin2_value as f64);
+        let psi1_reading = linear_interpolation(pin1_value as f64);
+        let psi2_reading = linear_interpolation(pin2_value as f64);
 
-        log::info!(
-            "PIN32 {:.0} PSI ({pin1_value}) | PIN33 {:.0} PSI ({pin2_value})",
-            psi1,
-            psi2,
-        );
+        let psi1 = format_feading(psi1_reading);
+        let psi2 = format_feading(psi2_reading);
+
+        log::info!("PIN32 {psi1} ({pin1_value}) | PIN33 {psi2} ({pin2_value})");
 
         Text::with_baseline(
-            &format!("Pin 32 {:.0} PSI", psi1),
+            &format!("Pin 32 {psi1}"),
             Point::zero(),
             text_style,
             Baseline::Top,
@@ -141,7 +133,7 @@ fn main() -> ! {
         .unwrap();
 
         Text::with_baseline(
-            &format!("Pin 33 {:.0} PSI", psi2),
+            &format!("Pin 33 {psi2}",),
             Point::zero(),
             text_style,
             Baseline::Bottom,
@@ -152,5 +144,28 @@ fn main() -> ! {
         display.flush().unwrap();
 
         delay.delay(500.millis());
+    }
+}
+
+fn linear_interpolation(adc: f64) -> Option<f64> {
+    let psi_at_min = 0.0;
+    let adc_at_min = 310.0; // 0.5 v / 2
+
+    let adc_at_max = 2792.0; // 4.5 v / 2
+    let psi_at_max = 100.0;
+
+    // Value is clipped (not plugged in etc)
+    if adc < adc_at_min || adc > adc_at_max {
+        return None;
+    }
+
+    Some(psi_at_min + ((adc - adc_at_min) * (psi_at_max - psi_at_min)) / (adc_at_max - adc_at_min))
+}
+
+fn format_feading(val: Option<f64>) -> String {
+    if val.is_some() {
+        format!("{:.0} PSI", val.unwrap()).to_string()
+    } else {
+        "--".to_string()
     }
 }
