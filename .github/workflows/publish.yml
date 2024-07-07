@@ -45,7 +45,7 @@ jobs:
         run: cargo build --release
 
       - name: Install espflash
-        run: cargo install espflash
+        run: cargo binstall espflash
 
       - name: Save firmware
         run: |
