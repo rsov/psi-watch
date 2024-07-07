@@ -21,8 +21,8 @@ permissions:
   id-token: write
 
 jobs:
-  rust-checks:
-    name: Rust Checks
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -45,7 +45,7 @@ jobs:
         run: cargo build --release
 
       - name: Install espflash
-        run: cargo binstall espflash
+        run: apt-get install -y  libudev-dev && cargo install espflash
 
       - name: Save firmware
         run: |
