@@ -44,22 +44,21 @@ jobs:
       - name: Build firmware
         run: cargo build --release
 
-      - name: Copy firmware
-        if: ${{ github.ref == 'refs/heads/production' }}
+      - name: Install espflash
+        run: cargo install espflash
+
+      - name: Save firmware
         run: |
           espflash save-image --merge --chip esp32 "${GITHUB_WORKSPACE}/target/xtensa-esp32-none-elf/release/psi-watch" "${GITHUB_WORKSPACE}/dist/psi-watch.bin"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        if: ${{ github.ref == 'refs/heads/production' }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
-        if: ${{ github.ref == 'refs/heads/production' }}
         with:
           path: './dist/'
 
       - name: Deploy to GitHub Pages
-        if: ${{ github.ref == 'refs/heads/production' }}
         id: deployment
         uses: actions/deploy-pages@v4
