@@ -47,7 +47,7 @@ jobs:
       - name: Copy firmware
         if: ${{ github.ref == 'refs/heads/production' }}
         run: |
-          cp "${GITHUB_WORKSPACE}/target/xtensa-esp32-none-elf/release/psi-watch" "${GITHUB_WORKSPACE}/dist/merged-firmware.bin"
+          espflash save-image --merge --chip esp32 "${GITHUB_WORKSPACE}/target/xtensa-esp32-none-elf/release/psi-watch" "${GITHUB_WORKSPACE}/dist/psi-watch.bin"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

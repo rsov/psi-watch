@@ -10,4 +10,4 @@ target/
 *.pdb
 
 # Produced binary
-dist/merged-firmware.bin
+dist/psi-watch.bin
