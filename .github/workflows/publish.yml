@@ -44,8 +44,11 @@ jobs:
       - name: Build firmware
         run: cargo build --release
 
+      - name: Install espflash dependencies
+        run: sudo apt-get install -y libudev-dev
+
       - name: Install espflash
-        run: apt-get install -y  libudev-dev && cargo install espflash
+        run: cargo install espflash
 
       - name: Save firmware
         run: |
