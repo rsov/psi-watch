@@ -6,10 +6,11 @@ use alloc::{
     string::{String, ToString},
 };
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
+    mono_font::{ascii::FONT_10X20, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     prelude::*,
-    text::{Baseline, Text},
+    primitives::{Line, PrimitiveStyle},
+    text::Text,
 };
 use esp_backtrace as _;
 use esp_hal::{
@@ -92,12 +93,13 @@ fn main() -> ! {
     let mut display = driver.into_buffered_graphics_mode();
 
     log::debug!("config");
+    display.init().unwrap();
     display.set_display_on(true).unwrap();
     display.set_brightness(Brightness::BRIGHTEST).unwrap();
     display.flush().unwrap();
 
     let text_style = MonoTextStyleBuilder::new()
-        .font(&FONT_6X10)
+        .font(&FONT_10X20)
         .text_color(BinaryColor::On)
         .build();
 
@@ -112,6 +114,10 @@ fn main() -> ! {
     let mut adc1 = Adc::new(peripherals.ADC1, adc1_config);
 
     loop {
+        display
+            .clear(embedded_graphics::pixelcolor::BinaryColor::Off)
+            .unwrap();
+
         let pin1_value = nb::block!(adc1.read_oneshot(&mut pin1_adc1_pin)).unwrap();
         let pin2_value = nb::block!(adc1.read_oneshot(&mut pin2_adc1_pin)).unwrap();
 
@@ -123,27 +129,25 @@ fn main() -> ! {
 
         log::info!("PIN32 {psi1} ({pin1_value}) | PIN33 {psi2} ({pin2_value})");
 
-        Text::with_baseline(
-            &format!("Pin 32 {psi1}"),
-            Point::zero(),
-            text_style,
-            Baseline::Top,
-        )
-        .draw(&mut display)
-        .unwrap();
+        Text::new(&format!("32 {psi1}"), Point::new(0, 30), text_style)
+            .draw(&mut display)
+            .unwrap();
 
-        Text::with_baseline(
-            &format!("Pin 33 {psi2}",),
-            Point::zero(),
-            text_style,
-            Baseline::Bottom,
-        )
-        .draw(&mut display)
-        .unwrap();
+        Line::new(Point::new(0, 35), Point::new(bar_width(psi1_reading), 35))
+            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 5))
+            .draw(&mut display)
+            .unwrap();
+
+        Text::new(&format!("33 {psi2}"), Point::new(0, 55), text_style)
+            .draw(&mut display)
+            .unwrap();
+
+        Line::new(Point::new(0, 60), Point::new(bar_width(psi2_reading), 60))
+            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 5))
+            .draw(&mut display)
+            .unwrap();
 
         display.flush().unwrap();
-
-        delay.delay(500.millis());
     }
 }
 
@@ -163,9 +167,17 @@ fn linear_interpolation(adc: f64) -> Option<f64> {
 }
 
 fn format_feading(val: Option<f64>) -> String {
-    if val.is_some() {
-        format!("{:.0} PSI", val.unwrap()).to_string()
+    if let Some(value) = val {
+        format!("{:.0} PSI", value).to_string()
     } else {
         "--".to_string()
+    }
+}
+
+fn bar_width(val: Option<f64>) -> i32 {
+    if let Some(value) = val {
+        value as i32 * 128 / 100
+    } else {
+        0
     }
 }
