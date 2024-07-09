@@ -16,7 +16,6 @@ use esp_backtrace as _;
 use esp_hal::{
     analog::adc::{Adc, AdcConfig, Attenuation},
     clock::ClockControl,
-    delay::Delay,
     gpio::Io,
     i2c::I2C,
     peripherals::Peripherals,
@@ -46,7 +45,6 @@ fn main() -> ! {
     let system = SystemControl::new(peripherals.SYSTEM);
 
     let clocks = ClockControl::max(system.clock_control).freeze();
-    let delay = Delay::new(&clocks);
     init_heap();
 
     esp_println::logger::init_logger_from_env();
