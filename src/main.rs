@@ -85,7 +85,7 @@ fn main() -> ! {
     // 0x3c
     let mut interface = I2CDisplayInterface::new(i2c);
 
-    // Might solve brighness issue?
+    // Might solve brightness issue?
     Command::ChargePump(true).send(&mut interface).unwrap();
 
     let driver = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
@@ -125,8 +125,8 @@ fn main() -> ! {
         let psi1_reading = linear_interpolation(pin1_value as f64);
         let psi2_reading = linear_interpolation(pin2_value as f64);
 
-        let psi1 = format_feading(psi1_reading);
-        let psi2 = format_feading(psi2_reading);
+        let psi1 = format_reading(psi1_reading);
+        let psi2 = format_reading(psi2_reading);
 
         log::info!("PIN32 {psi1} ({pin1_value}) | PIN33 {psi2} ({pin2_value})");
 
@@ -167,7 +167,7 @@ fn linear_interpolation(adc: f64) -> Option<f64> {
     Some(psi_at_min + ((adc - adc_at_min) * (psi_at_max - psi_at_min)) / (adc_at_max - adc_at_min))
 }
 
-fn format_feading(val: Option<f64>) -> String {
+fn format_reading(val: Option<f64>) -> String {
     if let Some(value) = val {
         format!("{:.0} PSI", value).to_string()
     } else {
