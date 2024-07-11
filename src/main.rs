@@ -6,11 +6,9 @@ use alloc::{
     string::{String, ToString},
 };
 use embedded_graphics::{
-    mono_font::{ascii::FONT_10X20, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Line, PrimitiveStyle},
-    text::Text,
 };
 use esp_backtrace as _;
 use esp_hal::{
@@ -23,12 +21,23 @@ use esp_hal::{
     system::SystemControl,
 };
 use ssd1306::{command::Command, prelude::*, I2CDisplayInterface, Ssd1306};
+use u8g2_fonts::{
+    fonts,
+    types::{FontColor, HorizontalAlignment, VerticalPosition},
+    FontRenderer,
+};
 
 extern crate alloc;
-use core::mem::MaybeUninit;
+use core::{borrow::Borrow, mem::MaybeUninit};
 
 #[global_allocator]
 static ALLOCATOR: esp_alloc::EspHeap = esp_alloc::EspHeap::empty();
+
+const PSI_MAX: f64 = 100.0;
+const PSI_MIN: f64 = 0.0;
+const PSI_WARN: f64 = 15.0;
+
+const YELLOW_HEIGHT: i32 = 16; // first few pixels are in different color
 
 fn init_heap() {
     const HEAP_SIZE: usize = 32 * 1024;
@@ -99,10 +108,7 @@ fn main() -> ! {
     display.set_brightness(Brightness::BRIGHTEST).unwrap();
     display.flush().unwrap();
 
-    let text_style = MonoTextStyleBuilder::new()
-        .font(&FONT_10X20)
-        .text_color(BinaryColor::On)
-        .build();
+    let font = FontRenderer::new::<fonts::u8g2_font_timB24_tf>();
 
     let sensor_1_pin = io.pins.gpio32;
     let sensor_2_pin = io.pins.gpio33;
@@ -113,6 +119,9 @@ fn main() -> ! {
     let mut pin2_adc1_pin = adc1_config.enable_pin(sensor_2_pin, Attenuation::Attenuation11dB);
 
     let mut adc1 = Adc::new(peripherals.ADC1, adc1_config);
+
+    let warn_min = PSI_MIN + PSI_WARN;
+    let warn_max = PSI_MAX - PSI_WARN;
 
     loop {
         display
@@ -128,36 +137,70 @@ fn main() -> ! {
         let psi1 = format_reading(psi1_reading);
         let psi2 = format_reading(psi2_reading);
 
-        log::info!("PIN32 {psi1} ({pin1_value}) | PIN33 {psi2} ({pin2_value})");
+        if let Some(value) = psi1_reading {
+            if (PSI_MIN..warn_min).contains(&value) || (warn_max..PSI_MAX).contains(&value) {
+                Line::new(Point::new(0, 0), Point::new(128 / 2, 0))
+                    .into_styled(PrimitiveStyle::with_stroke(
+                        BinaryColor::On,
+                        YELLOW_HEIGHT as u32,
+                    ))
+                    .draw(&mut display)
+                    .unwrap();
+            }
 
-        Text::new(&format!("32 {psi1}"), Point::new(0, 30), text_style)
-            .draw(&mut display)
-            .unwrap();
+            Line::new(Point::new(4, 64), Point::new(4, bar_y(value)))
+                .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 8))
+                .draw(&mut display)
+                .unwrap();
+        }
 
-        Line::new(Point::new(0, 35), Point::new(bar_width(psi1_reading), 35))
-            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 5))
-            .draw(&mut display)
-            .unwrap();
+        if let Some(value) = psi2_reading {
+            if (PSI_MIN..warn_min).contains(&value) || (warn_max..PSI_MAX).contains(&value) {
+                Line::new(Point::new(128 / 2, 0), Point::new(128, 0))
+                    .into_styled(PrimitiveStyle::with_stroke(
+                        BinaryColor::On,
+                        YELLOW_HEIGHT as u32,
+                    ))
+                    .draw(&mut display)
+                    .unwrap();
+            }
 
-        Text::new(&format!("33 {psi2}"), Point::new(0, 55), text_style)
-            .draw(&mut display)
-            .unwrap();
+            Line::new(Point::new(122, 64), Point::new(122, bar_y(value)))
+                .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 8))
+                .draw(&mut display)
+                .unwrap();
+        }
 
-        Line::new(Point::new(0, 60), Point::new(bar_width(psi2_reading), 60))
-            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 5))
-            .draw(&mut display)
-            .unwrap();
+        font.render_aligned(
+            psi1.borrow(),
+            Point::new(60, 24),
+            VerticalPosition::Top,
+            HorizontalAlignment::Right,
+            FontColor::Transparent(BinaryColor::On),
+            &mut display,
+        )
+        .unwrap();
+
+        font.render_aligned(
+            psi2.borrow(),
+            Point::new(110, 24),
+            VerticalPosition::Top,
+            HorizontalAlignment::Right,
+            FontColor::Transparent(BinaryColor::On),
+            &mut display,
+        )
+        .unwrap();
 
         display.flush().unwrap();
     }
 }
 
 fn linear_interpolation(adc: f64) -> Option<f64> {
-    let psi_at_min = 0.0;
+    let psi_at_min = PSI_MIN;
     let adc_at_min = 310.0; // 0.5 v / 2
 
     let adc_at_max = 2792.0; // 4.5 v / 2
-    let psi_at_max = 100.0;
+    let psi_at_max = PSI_MAX;
 
     // Value is clipped (not plugged in etc)
     if adc < adc_at_min || adc > adc_at_max {
@@ -169,16 +212,12 @@ fn linear_interpolation(adc: f64) -> Option<f64> {
 
 fn format_reading(val: Option<f64>) -> String {
     if let Some(value) = val {
-        format!("{:.0} PSI", value).to_string()
+        format!("{:.0}", value).to_string()
     } else {
         "--".to_string()
     }
 }
 
-fn bar_width(val: Option<f64>) -> i32 {
-    if let Some(value) = val {
-        value as i32 * 128 / 100
-    } else {
-        0
-    }
+fn bar_y(val: f64) -> i32 {
+    64 - (val as i32 * (64 - YELLOW_HEIGHT) / 100)
 }

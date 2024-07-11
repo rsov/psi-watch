@@ -34,6 +34,13 @@ gs01525-02 - 100 SPI pressure
 
 https://rsov.github.io/psi-watch/
 
+## DISPLAY
+
+16px yellow
+48px blue
+
+
+
 ## Dev Containers
 This repository offers Dev Containers supports for:
 -  [VS Code Dev Containers](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container)
