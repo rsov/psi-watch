@@ -6,11 +6,33 @@
         {
             "type": "board-esp32-devkit-c-v4",
             "id": "esp",
-            "top": 0.59,
-            "left": 0.67,
+            "top": 0,
+            "left": 0,
+            "rotate": 270,
             "attrs": {
                 "flashSize": "16"
             }
+        },
+        {
+            "type": "board-ssd1306",
+            "id": "oled1",
+            "top": 220,
+            "left": 0,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-slide-potentiometer",
+            "id": "sensor1",
+            "top": 0,
+            "left": 120,
+            "rotate": 270
+        },
+        {
+            "type": "wokwi-slide-potentiometer",
+            "id": "sensor2",
+            "top": 0,
+            "left": 220,
+            "rotate": 270
         }
     ],
     "connections": [
@@ -25,6 +47,95 @@
             "$serialMonitor:TX",
             "",
             []
+        ],
+        [
+            "oled1:SCL",
+            "esp:26",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "oled1:SDA",
+            "esp:25",
+            "blue",
+            [
+                "v-10",
+                "h-124.73"
+            ]
+        ],
+        [
+            "oled1:GND",
+            "esp:GND.1",
+            "black",
+            [
+                "v-20",
+                "h-124.73"
+            ]
+        ],
+        [
+            "oled1:VCC",
+            "esp:3V3",
+            "red",
+            [
+                "v-40",
+                "h-125"
+            ]
+        ],
+        [
+            "sensor1:GND",
+            "esp:GND.2",
+            "black",
+            [
+                "v-10",
+                "h-125"
+            ]
+        ],
+        [
+            "sensor2:GND",
+            "esp:GND.2",
+            "black",
+            [
+                "v-10",
+                "h-125"
+            ]
+        ],
+        [
+            "sensor1:VCC",
+            "esp:3V3",
+            "red",
+            [
+                "v29",
+                "h20"
+            ]
+        ],
+        [
+            "sensor1:SIG",
+            "esp:32",
+            "yellow",
+            [
+                "v10",
+                "h10"
+            ]
+        ],
+        [
+            "sensor2:VCC",
+            "esp:3V3",
+            "red",
+            [
+                "v29",
+                "h20"
+            ]
+        ],
+        [
+            "sensor2:SIG",
+            "esp:33",
+            "orange",
+            [
+                "v20",
+                "h10"
+            ]
         ]
     ],
     "serialMonitor": {
