@@ -22,7 +22,7 @@ use esp_hal::{
     prelude::*,
     system::SystemControl,
 };
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
+use ssd1306::{command::Command, prelude::*, I2CDisplayInterface, Ssd1306};
 
 extern crate alloc;
 use core::mem::MaybeUninit;
@@ -83,7 +83,10 @@ fn main() -> ! {
     // }
 
     // 0x3c
-    let interface = I2CDisplayInterface::new(i2c);
+    let mut interface = I2CDisplayInterface::new(i2c);
+
+    // Might solve brighness issue?
+    Command::ChargePump(true).send(&mut interface).unwrap();
 
     let driver = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
 
