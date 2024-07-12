@@ -5,6 +5,7 @@
         "oneshot",
         "pixelcolor",
         "TIMG",
+        "tinybmp",
         "Uninit"
     ],
 }

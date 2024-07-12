@@ -6,6 +6,7 @@ use alloc::{
     string::{String, ToString},
 };
 use embedded_graphics::{
+    image::Image,
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Line, PrimitiveStyle},
@@ -22,6 +23,7 @@ use esp_hal::{
     system::SystemControl,
 };
 use ssd1306::{command::Command, prelude::*, I2CDisplayInterface, Ssd1306};
+use tinybmp::Bmp;
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, VerticalPosition},
@@ -109,9 +111,19 @@ fn main() -> ! {
     display.init().unwrap();
     display.set_display_on(true).unwrap();
     display.set_brightness(Brightness::BRIGHTEST).unwrap();
+
+    display.set_invert(true).unwrap();
     display.flush().unwrap();
 
     let font = FontRenderer::new::<fonts::u8g2_font_timB24_tf>();
+    let bmp: Bmp<BinaryColor> = Bmp::from_slice(include_bytes!("./truck.bmp")).unwrap();
+    let image = Image::new(&bmp, Point::new(0, 0));
+    image.draw(&mut display).unwrap();
+    display.flush().unwrap();
+    delay.delay_millis(1500u32);
+
+    display.set_invert(false).unwrap();
+    display.flush().unwrap();
 
     let sensor_1_pin = io.pins.gpio32;
     let sensor_2_pin = io.pins.gpio33;
