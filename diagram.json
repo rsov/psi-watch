@@ -6,7 +6,7 @@
         {
             "type": "board-esp32-devkit-c-v4",
             "id": "esp",
-            "top": 0,
+            "top": -50,
             "left": 0,
             "rotate": 270,
             "attrs": {
@@ -24,15 +24,55 @@
             "type": "wokwi-slide-potentiometer",
             "id": "sensor1",
             "top": 0,
-            "left": 120,
+            "left": 200,
             "rotate": 270
         },
         {
             "type": "wokwi-slide-potentiometer",
             "id": "sensor2",
             "top": 0,
-            "left": 220,
+            "left": 350,
             "rotate": 270
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "div1-1",
+            "top": 20,
+            "left": 180,
+            "rotate": 90,
+            "attrs": {
+                "value": "3300"
+            }
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "div1-2",
+            "top": 100,
+            "left": 180,
+            "rotate": 90,
+            "attrs": {
+                "value": "3300"
+            }
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "div2-1",
+            "top": 20,
+            "left": 350,
+            "rotate": 90,
+            "attrs": {
+                "value": "3300"
+            }
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "div2-2",
+            "top": 100,
+            "left": 350,
+            "rotate": 90,
+            "attrs": {
+                "value": "3300"
+            }
         }
     ],
     "connections": [
@@ -88,7 +128,7 @@
             "esp:GND.2",
             "black",
             [
-                "v-10",
+                "v-44",
                 "h-125"
             ]
         ],
@@ -97,17 +137,73 @@
             "esp:GND.2",
             "black",
             [
-                "v-10",
+                "v-44",
                 "h-125"
             ]
         ],
         [
-            "sensor1:VCC",
-            "esp:3V3",
+            "div1-1:1",
+            "esp:5V",
             "red",
             [
-                "v29",
-                "h20"
+                "v-10",
+                "h-30",
+                "v-10"
+            ]
+        ],
+        [
+            "div1-1:2",
+            "div1-2:1",
+            "red"
+        ],
+        [
+            "esp:GND.2",
+            "div1-2:1",
+            "black",
+            [
+                "v-100",
+                "h250",
+                "v20"
+            ]
+        ],
+        [
+            "div1-2:2",
+            "sensor1:VCC",
+            "red",
+            [
+                "v10"
+            ]
+        ],
+        [
+            "div2-1:1",
+            "esp:5V",
+            "red",
+            [
+                "v-70",
+                "h0"
+            ]
+        ],
+        [
+            "div2-1:2",
+            "div2-2:1",
+            "red"
+        ],
+        [
+            "esp:GND.2",
+            "div2-2:1",
+            "black",
+            [
+                "v-100",
+                "h420",
+                "v20"
+            ]
+        ],
+        [
+            "div2-2:2",
+            "sensor2:VCC",
+            "red",
+            [
+                "v10"
             ]
         ],
         [
@@ -117,15 +213,6 @@
             [
                 "v10",
                 "h10"
-            ]
-        ],
-        [
-            "sensor2:VCC",
-            "esp:3V3",
-            "red",
-            [
-                "v29",
-                "h20"
             ]
         ],
         [
