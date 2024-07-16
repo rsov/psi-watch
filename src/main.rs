@@ -213,17 +213,24 @@ fn main() -> ! {
 
 fn linear_interpolation(adc: f64) -> Option<f64> {
     let psi_at_min = PSI_MIN;
-    let adc_at_min = 310.0; // 0.5 v / 2
+    let vol_at_min = 0.35;
 
-    let adc_at_max = 2792.0; // 4.5 v / 2
     let psi_at_max = PSI_MAX;
+    let vol_at_max = 3.2;
+
+    let vol = adc_to_v(adc);
 
     // Value is clipped (not plugged in etc)
-    if adc < adc_at_min || adc > adc_at_max {
+    if vol < vol_at_min || vol > vol_at_max {
         return None;
     }
 
-    Some(psi_at_min + ((adc - adc_at_min) * (psi_at_max - psi_at_min)) / (adc_at_max - adc_at_min))
+    Some(psi_at_min + ((vol - vol_at_min) * (psi_at_max - psi_at_min)) / (vol_at_max - vol_at_min))
+}
+
+// Copy - pasta, hope it works
+fn adc_to_v(adc: f64) -> f64 {
+    (adc * 3.3) / 4095.0
 }
 
 fn format_reading(val: Option<f64>) -> String {

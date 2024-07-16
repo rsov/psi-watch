@@ -41,7 +41,7 @@
             "left": 180,
             "rotate": 90,
             "attrs": {
-                "value": "3300"
+                "value": "1800"
             }
         },
         {
@@ -51,7 +51,7 @@
             "left": 180,
             "rotate": 90,
             "attrs": {
-                "value": "3300"
+                "value": "4700"
             }
         },
         {
@@ -61,7 +61,7 @@
             "left": 350,
             "rotate": 90,
             "attrs": {
-                "value": "3300"
+                "value": "1800"
             }
         },
         {
@@ -71,7 +71,7 @@
             "left": 350,
             "rotate": 90,
             "attrs": {
-                "value": "3300"
+                "value": "4700"
             }
         }
     ],

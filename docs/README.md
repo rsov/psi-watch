@@ -13,22 +13,21 @@
 
 gs01525-02 - 100 SPI pressure
 
+**Voltage divider**
+- R1 - 1800
+- R2 - 4700
+
+**ADC**
+- 12bit ADC
+- 11db attenuation
+- 3.3 REF
+
 ### Voltage
-| V    | PSI     |
-| ---- | ------- |
-| 0.5v | 0 psi   |
-| 2.5v | 50 psi  |
-| 4.5v | 100 psi |
-
-
-
-### Wires
-| Color | Use    |
-| ----- | ------ |
-| RED   | +5v    |
-| BLK   | Ground |
-| GRN   | Signal |
-
+| V    | PSI     | Divided |
+| ---- | ------- | ------- |
+| 0.5v | 0 psi   | 0.35v   |
+| 2.5v | 50 psi  | 1.80v   |
+| 4.5v | 100 psi | 3.2v    |
 
 ## Flashing
 
