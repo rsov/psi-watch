@@ -33,9 +33,12 @@ gs01525-02 - 100 SPI pressure
 
 https://rsov.github.io/psi-watch/
 
-## DISPLAY
+### Display
+
+ssd1306
 
 16px yellow
+
 48px blue
 
 
