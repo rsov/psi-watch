@@ -150,11 +150,22 @@ fn main() -> ! {
         let pin1_value = nb::block!(adc1.read_oneshot(&mut pin1_adc1_pin)).unwrap();
         let pin2_value = nb::block!(adc1.read_oneshot(&mut pin2_adc1_pin)).unwrap();
 
-        let psi1_reading = linear_interpolation(pin1_value as f64);
-        let psi2_reading = linear_interpolation(pin2_value as f64);
+        let pin1_vol = adc_to_v(pin1_value as f64);
+        let pin2_vol = adc_to_v(pin2_value as f64);
+
+        let psi1_reading = linear_interpolation(pin1_vol);
+        let psi2_reading = linear_interpolation(pin2_vol);
 
         let psi1 = format_reading(psi1_reading);
         let psi2 = format_reading(psi2_reading);
+
+        log::debug!(
+            "PSI1 {}v {} | PSI2 {}v {}",
+            pin1_vol,
+            pin1_value,
+            pin2_vol,
+            pin2_value
+        );
 
         if let Some(value) = psi1_reading {
             if (PSI_MIN..warn_min).contains(&value) || (warn_max..PSI_MAX).contains(&value) {
@@ -215,14 +226,12 @@ fn main() -> ! {
     }
 }
 
-fn linear_interpolation(adc: f64) -> Option<f64> {
+fn linear_interpolation(vol: f64) -> Option<f64> {
     let psi_at_min = PSI_MIN;
     let vol_at_min = 0.35;
 
     let psi_at_max = PSI_MAX;
     let vol_at_max = 3.2;
-
-    let vol = adc_to_v(adc);
 
     // Value is clipped (not plugged in etc)
     if vol < vol_at_min || vol > vol_at_max {
