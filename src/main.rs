@@ -103,9 +103,6 @@ fn main() -> ! {
     // 0x3c
     let mut interface = I2CDisplayInterface::new(i2c);
 
-    // Might solve brightness issue?
-    Command::ChargePump(true).send(&mut interface).unwrap();
-
     let driver = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
 
     // let mut display = driver.into_terminal_mode();
