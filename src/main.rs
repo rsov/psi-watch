@@ -22,7 +22,7 @@ use esp_hal::{
     prelude::*,
     system::SystemControl,
 };
-use ssd1306::{command::Command, prelude::*, I2CDisplayInterface, Ssd1306};
+use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
 use tinybmp::Bmp;
 use u8g2_fonts::{
     fonts,
@@ -63,20 +63,6 @@ fn main() -> ! {
 
     esp_println::logger::init_logger_from_env();
 
-    let timer = esp_hal::timer::PeriodicTimer::new(
-        esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1, &clocks, None)
-            .timer0
-            .into(),
-    );
-    let _init = esp_wifi::initialize(
-        esp_wifi::EspWifiInitFor::Wifi,
-        timer,
-        esp_hal::rng::Rng::new(peripherals.RNG),
-        peripherals.RADIO_CLK,
-        &clocks,
-    )
-    .unwrap();
-
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
     let i2c = I2C::new(
@@ -85,7 +71,6 @@ fn main() -> ! {
         io.pins.gpio26, // SCL
         400u32.kHz(),
         &clocks,
-        None,
     );
 
     // Start Scan at Address 1 going up to 127
@@ -101,7 +86,7 @@ fn main() -> ! {
     // }
 
     // 0x3c
-    let mut interface = I2CDisplayInterface::new(i2c);
+    let interface = I2CDisplayInterface::new(i2c);
 
     let driver = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
 
