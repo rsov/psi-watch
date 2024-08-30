@@ -45,5 +45,8 @@
     3333
   ],
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/psi_watch,type=bind,consistency=cached",
-  "workspaceFolder": "/home/esp/psi_watch"
+  "workspaceFolder": "/home/esp/psi_watch",
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/esp/.ssh,type=bind,consistency=cached"
+  ]
 }
